@@ -43,18 +43,6 @@ class MyMplCanvas(FigureCanvas):
         FigureCanvas.__init__(self, fig)
         self.setParent(parent)
 
-        self.mpl_toolbar = NavigationToolbar(self, parent)
-
-        self.mpl_connect('key_press_event', self.on_key_press)
-
-        vbox = QVBoxLayout()
-        vbox.addWidget(self)  # the matplotlib canvas
-        vbox.addWidget(self.mpl_toolbar)
-        parent.setLayout(vbox)
-        parent.add(vbox)
-        #self.setCentralWidget(parent)
-        
-
         FigureCanvas.setSizePolicy(self,
                 QSizePolicy.Expanding,
                 QSizePolicy.Expanding)
@@ -63,17 +51,24 @@ class MyMplCanvas(FigureCanvas):
     def compute_initial_figure(self):
         pass
     
-    def on_key_press(self, event):
-        print('you pressed', event.key)
-        # implement the default mpl key press events described at
-        # http://matplotlib.org/users/navigation_toolbar.html#navigation-keyboard-shortcuts
-        key_press_handler(event, self.canvas, self.mpl_toolbar)
+
+class matplotlibWidget(QWidget):
+
+    def __init__( self, parent=None, width=5, height=4, dpi=100):
+        QWidget.__init__( self, parent )
+        self.canvas = MyMplCanvas() #create canvas that will hold our plot
+        self.navi_toolbar = NavigationToolbar(self.canvas, self) #createa navigation toolbar for our plot canvas
+
+        self.vbl = QVBoxLayout()
+        self.vbl.addWidget( self.canvas )
+        self.vbl.addWidget(self.navi_toolbar)
+        self.setLayout( self.vbl )
 
 
-class MyDynamicPlot(MyMplCanvas):
+class MyDynamicPlot(matplotlibWidget):
     """A canvas that updates itself every second with a new plot."""
     def __init__(self, *args, **kwargs):
-        MyMplCanvas.__init__(self, *args, **kwargs)
+        matplotlibWidget.__init__(self, *args, **kwargs)
         self.abs_scale_factor = 1.0
         #timer = QtCore.QTimer(self)
         #timer.timeout.connect(self.update_figure)
@@ -87,6 +82,10 @@ class MyDynamicPlot(MyMplCanvas):
         tsne = TSNE(n_components=2, verbose=1, perplexity=40, n_iter=1000)
         self.feats_2d = tsne.fit_transform(self.data['feats'])
 
+    def cmap(self):
+        my_cmap = matplotlib.cm.get_cmap('Set3')
+        my_cmap.set_under('k')
+        return my_cmap
 
     def compute_initial_figure(self, data_path):
         main_window = self.window()
@@ -94,8 +93,8 @@ class MyDynamicPlot(MyMplCanvas):
 
         self.get_data(data_path)
 
-        self.axes.scatter(self.feats_2d[:,0], self.feats_2d[:,1], c=np.ma.ravel(self.data['truelabel']), s=20, cmap='Set3')
-        self.draw()
+        self.canvas.axes.scatter(self.feats_2d[:,0], self.feats_2d[:,1], c=np.ma.ravel(self.data['truelabel']), s=20, cmap=self.cmap())
+        self.canvas.draw()
 
         main_window.statusBar().showMessage('Loaded: ' + data_path)
 
@@ -106,8 +105,8 @@ class MyDynamicPlot(MyMplCanvas):
         l = [random.randint(0, 10) for i in range(4)]
 
         #self.axes.plot([0, 1, 2, 3], l, 'r')
-        self.axes.scatter(self.feats_2d[:,0], self.feats_2d[:,1], c=np.ma.ravel(self.data['truelabel']), s=20, cmap='Set3')
-        self.draw()
+        self.canvas.axes.scatter(self.feats_2d[:,0], self.feats_2d[:,1], c=np.ma.ravel(self.data['truelabel']), s=20, cmap=self.cmap())
+        self.canvas.draw()
 
 
 class ImageScene(QGraphicsScene):
