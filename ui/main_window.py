@@ -6,16 +6,6 @@ from PyQt5.QtGui import *
 
 from .menu_bar import *
 from .main_panel import ToolPanel, MyDynamicPlot
-from . import numpy_qt as npqt
-
-
-# CONVENTION: Google Python Style Guide
-# module_name, package_name, ClassName, method_name, ExceptionName,
-# function_name, GLOBAL_CONSTANT_NAME, global_var_name, instance_var_name,
-# function_parameter_name, local_var_name
-# camelCase only to conform to pre-existing conventions
-
-
 
 
 

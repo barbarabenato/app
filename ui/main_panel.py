@@ -19,7 +19,6 @@ from sklearn.manifold import TSNE
 import numpy as np
 from skimage import io, transform
 
-from . import numpy_qt as npqt
 import ift_dataset as ift
 
 
@@ -51,7 +50,6 @@ class MyMplCanvas(FigureCanvas):
         vbox = QVBoxLayout()
         vbox.addWidget(self)  # the matplotlib canvas
         vbox.addWidget(self.mpl_toolbar)
-        vbox.pack_start(toolbar, False, False)
         parent.setLayout(vbox)
         parent.add(vbox)
         #self.setCentralWidget(parent)
